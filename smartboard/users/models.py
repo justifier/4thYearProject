@@ -5,8 +5,9 @@ from django.db import models
 # Create your models here.
 
 
-class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key= True)
     modules = models.CharField(max_length=256)
+    type = models.CharField(max_length=64, default='Student')
 
-User.student = property(lambda u: Student.objects.get_or_create(user = u)[0])
+User.profile = property(lambda u: Profile.objects.get_or_create(user = u)[0])

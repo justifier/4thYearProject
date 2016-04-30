@@ -2,7 +2,10 @@ from django.http import HttpResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
-from .models import Student
+from modules.models import Module
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Profile
+import datetime
 
 
 def create_user(request,type,name,email,password):
@@ -12,95 +15,55 @@ def create_user(request,type,name,email,password):
             password=password,
             email=email
         )
-        student = user.student
-        student.modules = 'testing'
-        user.save()
-        student.save()
     except IntegrityError as e:
         return render_to_response("error_response.html", {"message": e})
-
+    if type == "Student":
+        student = user.profile
+        student.save()
+    else:
+        if type == "Lecturer":
+            lecturer = user.profile
+            lecturer.type = 'Lecturer'
+            lecturer.save()
     email = User.objects.get(username=name).email
-    output = '''
-    <html>
-      <head>
-        <title>
-          Connecting to the model
-        </title>
-      </head>
-      <body>
-        <h1>
-          Connecting to the model
-        </h1>
-        The new user's email: %s
-      </body>
-    </html>''' % (
+    output = "Success, The user has been created with email: %s " % (
         email
     )
     return HttpResponse(output)
 
 
-def add_module(request,name,password,module,activationcode):
+def add_module(request,name,password,modulecode,activationcode):
     user = User.objects.get(username=name)
+    try:
+        module = Module.objects.get(module_code=modulecode)
+    except ObjectDoesNotExist:
+        return HttpResponse("Failure, module does not exist")
     if user.check_password(password):
         if module is not None:
-            student = user.student
-            if student.modules:
-                student.modules = (student.modules + ',' +module)
+            profile = user.profile
+            if profile.modules:
+                profile.modules = (profile.modules + ',' +modulecode)
             else:
-                student.modules = module
-            student.save()
-    output = '''
-        <html>
-          <head>
-            <title>
-              Connecting to the model
-            </title>
-          </head>
-          <body>
-            <h1>
-              Connecting to the model
-            </h1>
-            The module added was: %s
-          </body>
-        </html>''' % (
-        user.student.modules + activationcode
-    )
-    return HttpResponse(output)
+                profile.modules = module
+            profile.save()
+            output = "Success, the module: %s has been added to user %s" % (
+                user.username, user.profile.modules
+            )
+            return HttpResponse(output)
+    return HttpResponse("Failure, password was incorrect")
 
 
 def login(request, name, password):
     user = User.objects.get(username = name)
     if user.check_password(password):
-        output = '''
-            <html>
-              <head>
-                <title>
-                  Connecting to the model
-                </title>
-              </head>
-              <body>
-                <h1>
-                  Password was correct
-                </h1>
-                The falling user was logged in: %s
-                The users modules where: %s
-              </body>
-            </html>''' % (
-            name, user.student.modules)
-        return HttpResponse(output)
+        if user.profile.type:
+            user.last_login = datetime.datetime.now()
+            user.save()
+            output = "Success, The user %s has been logged in with the modules %s, the user type is %s" % (
+                name, user.profile.modules, user.profile.type)
+            return HttpResponse(output)
+        else:
+            return HttpResponse("Failure, could not find the user type")
     else:
-        output = '''
-            <html>
-              <head>
-                <title>
-                  Connecting to the model
-                </title>
-              </head>
-              <body>
-                <h1>
-                  Error logging in
-                </h1>
-                u fucked up or we fucked up, the jist of it is someone fucked up.
-              </body>
-            </html>'''
+        output = "Failure, Password incorrect"
         return HttpResponse(output)

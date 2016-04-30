@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'smartboard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'smartboarddb',
+        'NAME': 'smartboarddb2',
         'USER': 'root',
         'PASSWORD': 'asswipe93',
         'HOST': '',
@@ -113,6 +113,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_PROFILE_MODULE = 'users.Student'
+
+MEDIA_ROOT = '/College/4thYearProject/smartboard/'
+
+MEDIA_URL = '/media/'
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -129,5 +133,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
+SETTINGS_DIR = os.path.dirname(__file__)
+
+PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
+
+STATIC_PATH = os.path.join(PROJECT_PATH,'static')
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    STATIC_PATH,
+    )
