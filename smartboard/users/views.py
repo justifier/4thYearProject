@@ -39,17 +39,18 @@ def add_module(request,name,password,modulecode,activationcode):
     except ObjectDoesNotExist:
         return HttpResponse("Failure, module does not exist")
     if user.check_password(password):
-        if module is not None:
-            profile = user.profile
-            if profile.modules:
-                profile.modules = (profile.modules + ',' +modulecode)
-            else:
-                profile.modules = module
-            profile.save()
-            output = "Success, the module: %s has been added to user %s" % (
-                user.username, user.profile.modules
-            )
-            return HttpResponse(output)
+        if activationcode:
+            if module is not None:
+                profile = user.profile
+                if profile.modules:
+                    profile.modules = (profile.modules + ',' +modulecode)
+                else:
+                    profile.modules = module
+                profile.save()
+                output = "Success, the module: %s has been added to user %s" % (
+                    user.username, user.profile.modules
+                )
+                return HttpResponse(output)
     return HttpResponse("Failure, password was incorrect")
 
 

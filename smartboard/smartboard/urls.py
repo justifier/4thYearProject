@@ -19,8 +19,6 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^users/', include('users.urls')),
-    url(r'^student/',include('student.urls')),
-    url(r'^polls/', include('polls.urls')),
     url(r'^modules/', include('modules.urls')),
     url(r'^admin/', admin.site.urls),
 ]
