@@ -85,6 +85,8 @@ def add_video(request,modulecode,lecturenum,lname,password):
         module = Module.objects.get(module_code=modulecode)
     except ObjectDoesNotExist:
         return HttpResponse("Failure, the module you are trying to add video to does not exist")
+    if module.lecture_num < lecturenum:
+        add_lecture(request, modulecode, lname, password)
     try:
         lecture = Lecture.objects.get(modulecode=module, lecture_num=lecturenum)
     except ObjectDoesNotExist:
